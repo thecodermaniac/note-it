@@ -10,6 +10,7 @@ import AboutUs from './components/AboutUs';
 import Home from './components/Home';
 import NoteState from './context/notes/notestate';
 import Login from './components/Login';
+import Signup from './components/SignUp'
 
 function App() {
   return (
@@ -17,17 +18,20 @@ function App() {
       <Router>
         <Navbar />
         <Switch>
-          <Route path="/about">
+        <Route exact path="/Login">
+            <Login />
+          </Route>
+          <Route exact path="/SignUp">
+            <Signup/>
+          </Route>
+          <Route exact path="/about">
             <AboutUs />
           </Route>
-          <Route path="/home">
+          <Route exact path="/home">
             <Home />
           </Route>
           <Route path="/">
             <Home />
-          </Route>
-          <Route path="/login">
-            <Login />
           </Route>
         </Switch>
       </Router>

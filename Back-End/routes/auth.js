@@ -12,15 +12,18 @@ const JWT_SECRET = 'Harryisagoodb$oy'
 router.post('/createuser', [body('name').isLength({ min: 4 }),
 body('email').isEmail(),
 body('password').isLength({ min: 3 })], async (req, res) => {
+    let success = null
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        success = false
+        return res.status(400).json({ errors: errors.array(), valid: success });
     }
 
     try {
         let user = await User.findOne({ email: req.body.email });
         if (user) {
-            return res.status(400).json({ error: "Sorry a user with this email already exists" })
+            success = false
+            return res.status(400).json({ error: "Sorry a user with this email already exists", valid: success })
         }
 
         const salt = await bcrypt.genSalt(10)
@@ -40,7 +43,8 @@ body('password').isLength({ min: 3 })], async (req, res) => {
 
 
         // res.json(user)
-        res.json({ authtoken })
+        success = true
+        res.json({ authtoken, valid: success })
     } catch (error) {
         console.log('part called')
         console.error(error.message)
@@ -58,6 +62,7 @@ router.post('/login',
 
     [body('email').isEmail(),
     body('password').isLength({ min: 3 })], async (req, res) => {
+        var success = null
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
@@ -66,13 +71,15 @@ router.post('/login',
         try {
             let user = await User.findOne({ email: req.body.email });
             if (!user) {
-                return res.status(400).json({ error: "Sorry no user exists" })
+                success = false
+                return res.status(400).json({ error: "Sorry no user exists", valid: success })
             }
 
             const passwordCompare = await bcrypt.compare(req.body.password, user.password)
 
             if (!passwordCompare) {
-                return res.status(400).json({ error: "Please try to login with correct credentials" });
+                success = false
+                return res.status(400).json({ error: "Please try to login with correct credentials", valid: success });
             }
             const data = {
                 user: {
@@ -80,7 +87,8 @@ router.post('/login',
                 }
             }
             const authtoken = jwt.sign(data, JWT_SECRET);
-            res.json({ authtoken })
+            success = true
+            res.json({ authtoken, valid: success })
         } catch (error) {
             console.log('part called')
             console.error(error.message)
